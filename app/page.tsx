@@ -1,17 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadDayState, saveCompleted, loadStreak, updateStreak, reloadMission, type DayState, type StreakState } from "@/lib/missions";
+import { loadDayState, saveCompleted, loadStreak, updateStreak, reloadMission, revealMissions, loadHistory, type DayState, type StreakState, type HistoryState } from "@/lib/missions";
 import { shareAllDone } from "@/lib/share";
 import MissionCard from "@/components/MissionCard";
+import HistoryCalendar from "@/components/HistoryCalendar";
 
 export default function Home() {
   const [state, setState] = useState<DayState | null>(null);
   const [streak, setStreak] = useState<StreakState>({ current: 0, lastCompletedDate: "", max: 0 });
+  const [history, setHistory] = useState<HistoryState>({});
 
   useEffect(() => {
     setState(loadDayState());
     setStreak(loadStreak());
+    setHistory(loadHistory());
   }, []);
 
   function toggleMission(id: number) {
@@ -32,8 +35,14 @@ export default function Home() {
     if (next) setState(next);
   }
 
+  function handleReveal() {
+    if (!state) return;
+    setState(revealMissions(state));
+  }
+
   const allDone = state ? state.missions.every((m) => state.completed.includes(m.id)) : false;
   const reloadCredits = state?.reloadCredits ?? 3;
+  const isRevealed = state?.isRevealed ?? false;
 
   const dateLabel = new Date().toLocaleDateString("ja-JP", {
     month: "long",
@@ -87,16 +96,22 @@ export default function Home() {
       <div className="w-full max-w-md flex flex-col gap-3">
         {state ? (
           state.missions.map((mission, i) => (
-            <MissionCard
+            <div
               key={`${mission.id}-${i}`}
-              mission={mission}
-              index={i}
-              completed={state.completed.includes(mission.id)}
-              streak={streak.current}
-              reloadCredits={reloadCredits}
-              onToggle={toggleMission}
-              onReload={handleReload}
-            />
+              className={isRevealed ? `reveal-card reveal-card-${i + 1}` : ""}
+            >
+              <div className={!isRevealed ? "blur-sm opacity-30 pointer-events-none select-none" : ""}>
+                <MissionCard
+                  mission={mission}
+                  index={i}
+                  completed={state.completed.includes(mission.id)}
+                  streak={streak.current}
+                  reloadCredits={reloadCredits}
+                  onToggle={toggleMission}
+                  onReload={handleReload}
+                />
+              </div>
+            </div>
           ))
         ) : (
           [0, 1, 2].map((i) => (
@@ -107,6 +122,16 @@ export default function Home() {
           ))
         )}
       </div>
+
+      {/* 開封ボタン */}
+      {state && !isRevealed && (
+        <button
+          onClick={handleReveal}
+          className="mt-8 px-8 py-3 rounded-full border border-white/20 text-white/60 text-[12px] tracking-[0.2em] uppercase hover:border-white/40 hover:text-white/90 transition-all duration-200 active:scale-95"
+        >
+          今日のミッションを開く
+        </button>
+      )}
 
       {/* 全達成 */}
       {allDone && (
@@ -125,6 +150,8 @@ export default function Home() {
           </button>
         </div>
       )}
+
+      <HistoryCalendar history={history} />
 
       <div className="mt-auto pt-16 text-[10px] text-white/15 tracking-widest uppercase">
         nnm

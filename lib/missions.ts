@@ -11,6 +11,7 @@ export type DayState = {
   missions: Mission[];
   completed: number[];
   reloadCredits: number;
+  isRevealed: boolean;
 };
 
 function seededRandom(seed: number) {
@@ -58,15 +59,15 @@ export function loadDayState(): DayState {
   const today = new Date().toISOString().slice(0, 10);
 
   if (typeof window === "undefined") {
-    return { date: today, missions: getTodayMissions(), completed: [], reloadCredits: 3 };
+    return { date: today, missions: getTodayMissions(), completed: [], reloadCredits: 3, isRevealed: false };
   }
 
   const stored = localStorage.getItem("nnm_day");
   if (stored) {
     const parsed: DayState = JSON.parse(stored);
     if (parsed.date === today) {
-      // 既存データに reloadCredits がなければ補完
       if (parsed.reloadCredits === undefined) parsed.reloadCredits = 3;
+      if (parsed.isRevealed === undefined) parsed.isRevealed = false;
       return parsed;
     }
   }
@@ -76,6 +77,7 @@ export function loadDayState(): DayState {
     missions: getTodayMissions(),
     completed: [],
     reloadCredits: 3,
+    isRevealed: false,
   };
   localStorage.setItem("nnm_day", JSON.stringify(fresh));
   return fresh;
@@ -112,7 +114,29 @@ export function updateStreak(): StreakState {
   next.max = Math.max(next.current, streak.max);
 
   localStorage.setItem("nnm_streak", JSON.stringify(next));
+  saveHistory(today);
   return next;
+}
+
+export function revealMissions(currentState: DayState): DayState {
+  const next: DayState = { ...currentState, isRevealed: true };
+  localStorage.setItem("nnm_day", JSON.stringify(next));
+  return next;
+}
+
+export type HistoryState = Record<string, boolean>;
+
+export function loadHistory(): HistoryState {
+  if (typeof window === "undefined") return {};
+  const stored = localStorage.getItem("nnm_history");
+  if (stored) return JSON.parse(stored);
+  return {};
+}
+
+export function saveHistory(dateStr: string): void {
+  const history = loadHistory();
+  history[dateStr] = true;
+  localStorage.setItem("nnm_history", JSON.stringify(history));
 }
 
 export function reloadMission(index: number, currentState: DayState): DayState | null {
