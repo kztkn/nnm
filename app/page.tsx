@@ -1,65 +1,81 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import { loadDayState, saveCompleted, type DayState } from "@/lib/missions";
+import MissionCard from "@/components/MissionCard";
 
 export default function Home() {
+  const [state, setState] = useState<DayState | null>(null);
+
+  useEffect(() => {
+    setState(loadDayState());
+  }, []);
+
+  function toggleMission(id: number) {
+    if (!state) return;
+    const next = saveCompleted(id, state.completed);
+    setState({ ...state, completed: next });
+  }
+
+  const allDone =
+    state ? state.missions.every((m) => state.completed.includes(m.id)) : false;
+
+  const today = new Date();
+  const dateLabel = today.toLocaleDateString("ja-JP", {
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  });
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-[#0a0a0f] text-white flex flex-col items-center px-4 py-16">
+      <div className="w-full max-w-md mb-12">
+        <p className="text-[11px] tracking-[0.25em] text-white/25 uppercase mb-2">
+          {dateLabel}
+        </p>
+        <h1 className="text-2xl font-light tracking-wider text-white/90">
+          non normale
+        </h1>
+        <p className="text-[12px] text-white/30 mt-1 tracking-wide">
+          今日の3ミッション
+        </p>
+      </div>
+
+      <div className="w-full max-w-md flex flex-col gap-3">
+        {state ? (
+          state.missions.map((mission, i) => (
+            <MissionCard
+              key={mission.id}
+              mission={mission}
+              index={i}
+              completed={state.completed.includes(mission.id)}
+              onToggle={toggleMission}
+            />
+          ))
+        ) : (
+          [0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="rounded-2xl bg-[#111318] border border-white/[0.06] h-[70px] animate-pulse"
+            />
+          ))
+        )}
+      </div>
+
+      {allDone && (
+        <div className="mt-12 text-center">
+          <p className="text-[13px] tracking-[0.15em] text-[#6b8eff]/80 uppercase">
+            mission complete
+          </p>
+          <p className="text-white/30 text-xs mt-2">
+            今日もnon normaleだった
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+
+      <div className="mt-auto pt-16 text-[10px] text-white/15 tracking-widest uppercase">
+        nnm
+      </div>
+    </main>
   );
 }
