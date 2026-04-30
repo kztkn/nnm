@@ -58,7 +58,7 @@ export function loadDayState(): DayState {
   const today = new Date().toISOString().slice(0, 10);
 
   if (typeof window === "undefined") {
-    return { date: today, missions: getTodayMissions(), completed: [] };
+    return { date: today, missions: getTodayMissions(), completed: [], reloadCredits: 3 };
   }
 
   const stored = localStorage.getItem("nnm_day");
