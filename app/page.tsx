@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadDayState, saveCompleted, loadStreak, updateStreak, reloadMission, revealMissions, loadHistory, type DayState, type StreakState, type HistoryState } from "@/lib/missions";
+import { loadDayState, saveCompleted, loadStreak, updateStreak, reloadMission, revealMissions, loadHistory, saveHistory, type DayState, type StreakState, type HistoryState } from "@/lib/missions";
 import { shareAllDone } from "@/lib/share";
 import MissionCard from "@/components/MissionCard";
 import HistoryCalendar from "@/components/HistoryCalendar";
@@ -25,7 +25,10 @@ export default function Home() {
 
     const willBeAllDone = nextState.missions.every((m) => next.includes(m.id));
     if (willBeAllDone) {
+      const today = new Date().toISOString().slice(0, 10);
       setStreak(updateStreak());
+      saveHistory(today, nextState.missions.map((m) => m.text));
+      setHistory(loadHistory());
     }
   }
 

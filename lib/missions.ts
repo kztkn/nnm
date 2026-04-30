@@ -114,7 +114,6 @@ export function updateStreak(): StreakState {
   next.max = Math.max(next.current, streak.max);
 
   localStorage.setItem("nnm_streak", JSON.stringify(next));
-  saveHistory(today);
   return next;
 }
 
@@ -124,7 +123,8 @@ export function revealMissions(currentState: DayState): DayState {
   return next;
 }
 
-export type HistoryState = Record<string, boolean>;
+// true = 旧データ（ミッション詳細なし）, string[] = ミッションテキスト配列
+export type HistoryState = Record<string, string[] | true>;
 
 export function loadHistory(): HistoryState {
   if (typeof window === "undefined") return {};
@@ -133,9 +133,9 @@ export function loadHistory(): HistoryState {
   return {};
 }
 
-export function saveHistory(dateStr: string): void {
+export function saveHistory(dateStr: string, missions: string[]): void {
   const history = loadHistory();
-  history[dateStr] = true;
+  history[dateStr] = missions;
   localStorage.setItem("nnm_history", JSON.stringify(history));
 }
 
