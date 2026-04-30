@@ -5,6 +5,7 @@ import { type HistoryState } from "@/lib/missions";
 
 type Props = {
   history: HistoryState;
+  firstUseDate: string;
 };
 
 const DAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
@@ -20,7 +21,7 @@ function isSameMonth(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 }
 
-export default function HistoryCalendar({ history }: Props) {
+export default function HistoryCalendar({ history, firstUseDate }: Props) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -33,8 +34,11 @@ export default function HistoryCalendar({ history }: Props) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const canGoNext = !isSameMonth(currentMonth, today);
+  const firstUseMonth = firstUseDate ? new Date(firstUseDate + "T00:00:00") : null;
+  const canGoPrev = !firstUseMonth || !isSameMonth(currentMonth, firstUseMonth);
 
   function prevMonth() {
+    if (!canGoPrev) return;
     setCurrentMonth((m) => {
       const d = new Date(m);
       d.setMonth(d.getMonth() - 1);
@@ -95,7 +99,8 @@ export default function HistoryCalendar({ history }: Props) {
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={prevMonth}
-          className="w-7 h-7 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
+          disabled={!canGoPrev}
+          className={`w-7 h-7 flex items-center justify-center transition-colors ${canGoPrev ? "text-white/40 hover:text-white/70" : "text-white/10 cursor-default"}`}
         >
           ‹
         </button>

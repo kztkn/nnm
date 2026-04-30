@@ -130,6 +130,15 @@ export function revealMissions(currentState: DayState): DayState {
   return next;
 }
 
+export function loadOrInitFirstUse(): string {
+  if (typeof window === "undefined") return localDateStr();
+  const stored = localStorage.getItem("nnm_first_use");
+  if (stored) return stored;
+  const today = localDateStr();
+  localStorage.setItem("nnm_first_use", today);
+  return today;
+}
+
 // true = 旧データ（ミッション詳細なし）, string[] = ミッションテキスト配列
 export type HistoryState = Record<string, string[] | true>;
 

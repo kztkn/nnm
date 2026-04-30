@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadDayState, saveCompleted, loadStreak, updateStreak, reloadMission, revealMissions, loadHistory, saveHistory, type DayState, type StreakState, type HistoryState } from "@/lib/missions";
+import { loadDayState, saveCompleted, loadStreak, updateStreak, reloadMission, revealMissions, loadHistory, saveHistory, loadOrInitFirstUse, type DayState, type StreakState, type HistoryState } from "@/lib/missions";
 import { shareAllDone } from "@/lib/share";
 import MissionCard from "@/components/MissionCard";
 import HistoryCalendar from "@/components/HistoryCalendar";
@@ -10,11 +10,13 @@ export default function Home() {
   const [state, setState] = useState<DayState | null>(null);
   const [streak, setStreak] = useState<StreakState>({ current: 0, lastCompletedDate: "", max: 0 });
   const [history, setHistory] = useState<HistoryState>({});
+  const [firstUseDate, setFirstUseDate] = useState<string>("");
 
   useEffect(() => {
     setState(loadDayState());
     setStreak(loadStreak());
     setHistory(loadHistory());
+    setFirstUseDate(loadOrInitFirstUse());
   }, []);
 
   function toggleMission(id: number) {
@@ -148,7 +150,7 @@ export default function Home() {
         </div>
       )}
 
-      <HistoryCalendar history={history} />
+      <HistoryCalendar history={history} firstUseDate={firstUseDate} />
 
       <div className="mt-auto pt-16 text-[10px] text-white/15 tracking-widest uppercase">
         nnm
