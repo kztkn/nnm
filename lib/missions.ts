@@ -10,6 +10,7 @@ export type DayState = {
   date: string;
   missions: Mission[];
   completed: number[];
+  reloadCredits: number;
 };
 
 function seededRandom(seed: number) {
@@ -63,13 +64,18 @@ export function loadDayState(): DayState {
   const stored = localStorage.getItem("nnm_day");
   if (stored) {
     const parsed: DayState = JSON.parse(stored);
-    if (parsed.date === today) return parsed;
+    if (parsed.date === today) {
+      // 既存データに reloadCredits がなければ補完
+      if (parsed.reloadCredits === undefined) parsed.reloadCredits = 3;
+      return parsed;
+    }
   }
 
   const fresh: DayState = {
     date: today,
     missions: getTodayMissions(),
     completed: [],
+    reloadCredits: 3,
   };
   localStorage.setItem("nnm_day", JSON.stringify(fresh));
   return fresh;
@@ -106,6 +112,33 @@ export function updateStreak(): StreakState {
   next.max = Math.max(next.current, streak.max);
 
   localStorage.setItem("nnm_streak", JSON.stringify(next));
+  return next;
+}
+
+export function reloadMission(index: number, currentState: DayState): DayState | null {
+  if (currentState.reloadCredits <= 0) return null;
+
+  const currentIds = new Set(currentState.missions.map((m) => m.id));
+  const allMissions: Mission[] = [
+    ...missionsData.normal,
+    ...missionsData.rare.map((m) => ({ ...m, isRare: true as const })),
+  ];
+  const candidates = allMissions.filter((m) => !currentIds.has(m.id));
+  if (candidates.length === 0) return null;
+
+  const picked = candidates[Math.floor(Math.random() * candidates.length)];
+  const oldId = currentState.missions[index].id;
+
+  const nextMissions = currentState.missions.map((m, i) => (i === index ? picked : m));
+  const nextCompleted = currentState.completed.filter((id) => id !== oldId);
+
+  const next: DayState = {
+    ...currentState,
+    missions: nextMissions,
+    completed: nextCompleted,
+    reloadCredits: currentState.reloadCredits - 1,
+  };
+  localStorage.setItem("nnm_day", JSON.stringify(next));
   return next;
 }
 

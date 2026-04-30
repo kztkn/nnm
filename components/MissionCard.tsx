@@ -8,10 +8,14 @@ type Props = {
   index: number;
   completed: boolean;
   streak: number;
+  reloadCredits: number;
   onToggle: (id: number) => void;
+  onReload: (index: number) => void;
 };
 
-export default function MissionCard({ mission, index, completed, streak, onToggle }: Props) {
+export default function MissionCard({ mission, index, completed, streak, reloadCredits, onToggle, onReload }: Props) {
+  const canReload = !completed && reloadCredits > 0;
+
   return (
     <div
       className={`
@@ -30,11 +34,26 @@ export default function MissionCard({ mission, index, completed, streak, onToggl
         </span>
       )}
 
-      <div className="flex items-center gap-4">
-        <span className="text-[11px] text-white/20 font-mono w-4 shrink-0">
-          {String(index + 1).padStart(2, "0")}
-        </span>
+      <div className="flex items-center gap-3">
+        {/* リロードボタン */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (canReload) onReload(index);
+          }}
+          className={`shrink-0 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-200
+            ${canReload
+              ? "text-white/30 hover:text-white/60 hover:bg-white/5"
+              : "text-white/10 cursor-default"
+            }`}
+          title={reloadCredits === 0 ? "広告で回復（近日）" : "別のミッションに変える"}
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
 
+        {/* ミッション本文 */}
         <p
           className={`flex-1 text-[15px] leading-relaxed transition-all duration-300 ${
             completed ? "text-white/30 line-through" : "text-white/80"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadDayState, saveCompleted, loadStreak, updateStreak, type DayState, type StreakState } from "@/lib/missions";
+import { loadDayState, saveCompleted, loadStreak, updateStreak, reloadMission, type DayState, type StreakState } from "@/lib/missions";
 import { shareAllDone } from "@/lib/share";
 import MissionCard from "@/components/MissionCard";
 
@@ -26,7 +26,14 @@ export default function Home() {
     }
   }
 
+  function handleReload(index: number) {
+    if (!state) return;
+    const next = reloadMission(index, state);
+    if (next) setState(next);
+  }
+
   const allDone = state ? state.missions.every((m) => state.completed.includes(m.id)) : false;
+  const reloadCredits = state?.reloadCredits ?? 3;
 
   const dateLabel = new Date().toLocaleDateString("ja-JP", {
     month: "long",
@@ -38,7 +45,7 @@ export default function Home() {
     <main className="min-h-screen bg-[#0a0a0f] text-white flex flex-col items-center px-4 py-16">
 
       {/* ヘッダー */}
-      <div className="w-full max-w-md mb-12 flex items-start justify-between">
+      <div className="w-full max-w-md mb-10 flex items-start justify-between">
         <div>
           <p className="text-[11px] tracking-[0.25em] text-white/25 uppercase mb-2">
             {dateLabel}
@@ -46,9 +53,22 @@ export default function Home() {
           <h1 className="text-2xl font-light tracking-wider text-white/90">
             non normale
           </h1>
-          <p className="text-[12px] text-white/30 mt-1 tracking-wide">
-            今日の3ミッション
-          </p>
+          <div className="flex items-center gap-3 mt-1">
+            <p className="text-[12px] text-white/30 tracking-wide">今日の3ミッション</p>
+            {/* クレジット表示 */}
+            <div className="flex items-center gap-1">
+              {[0, 1, 2].map((i) => (
+                <svg
+                  key={i}
+                  className={`w-3 h-3 transition-all duration-300 ${i < reloadCredits ? "text-white/40" : "text-white/10"}`}
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* ストリーク */}
@@ -68,12 +88,14 @@ export default function Home() {
         {state ? (
           state.missions.map((mission, i) => (
             <MissionCard
-              key={mission.id}
+              key={`${mission.id}-${i}`}
               mission={mission}
               index={i}
               completed={state.completed.includes(mission.id)}
               streak={streak.current}
+              reloadCredits={reloadCredits}
               onToggle={toggleMission}
+              onReload={handleReload}
             />
           ))
         ) : (
