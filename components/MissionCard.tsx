@@ -1,15 +1,17 @@
 "use client";
 
 import { Mission } from "@/lib/missions";
+import { shareMission } from "@/lib/share";
 
 type Props = {
   mission: Mission;
   index: number;
   completed: boolean;
+  streak: number;
   onToggle: (id: number) => void;
 };
 
-export default function MissionCard({ mission, index, completed, onToggle }: Props) {
+export default function MissionCard({ mission, index, completed, streak, onToggle }: Props) {
   return (
     <div
       className={`
@@ -22,7 +24,6 @@ export default function MissionCard({ mission, index, completed, onToggle }: Pro
       `}
       onClick={() => onToggle(mission.id)}
     >
-      {/* レア帯 */}
       {mission.isRare && (
         <span className="absolute -top-px left-6 text-[10px] tracking-[0.2em] text-[#6b8eff] uppercase font-medium">
           rare
@@ -30,12 +31,10 @@ export default function MissionCard({ mission, index, completed, onToggle }: Pro
       )}
 
       <div className="flex items-center gap-4">
-        {/* インデックス番号 */}
         <span className="text-[11px] text-white/20 font-mono w-4 shrink-0">
           {String(index + 1).padStart(2, "0")}
         </span>
 
-        {/* ミッション本文 */}
         <p
           className={`flex-1 text-[15px] leading-relaxed transition-all duration-300 ${
             completed ? "text-white/30 line-through" : "text-white/80"
@@ -43,6 +42,23 @@ export default function MissionCard({ mission, index, completed, onToggle }: Pro
         >
           {mission.text}
         </p>
+
+        {/* シェアボタン（完了時のみ） */}
+        {completed && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              shareMission(mission.text, streak);
+            }}
+            className="shrink-0 w-7 h-7 rounded-full border border-[#6b8eff]/30 bg-[#6b8eff]/10 flex items-center justify-center hover:bg-[#6b8eff]/20 transition-all duration-200"
+            title="シェアする"
+          >
+            <svg className="w-3 h-3 text-[#6b8eff]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.246 14.488 7 15.5 7 15.5m0 0s-1 1-2 0m2 0l2-2m6.316-9.842C16.754 2.512 18 3.5 18 3.5m0 0s1-1 2 0m-2 0l-2 2M5 12H3m18 0h-2M12 5V3m0 18v-2" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 9l-6 6" />
+            </svg>
+          </button>
+        )}
 
         {/* チェックボタン */}
         <div

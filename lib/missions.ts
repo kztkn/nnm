@@ -75,6 +75,40 @@ export function loadDayState(): DayState {
   return fresh;
 }
 
+export type StreakState = {
+  current: number;
+  lastCompletedDate: string;
+  max: number;
+};
+
+export function loadStreak(): StreakState {
+  if (typeof window === "undefined") return { current: 0, lastCompletedDate: "", max: 0 };
+  const stored = localStorage.getItem("nnm_streak");
+  if (stored) return JSON.parse(stored);
+  return { current: 0, lastCompletedDate: "", max: 0 };
+}
+
+export function updateStreak(): StreakState {
+  const today = new Date().toISOString().slice(0, 10);
+  const streak = loadStreak();
+
+  if (streak.lastCompletedDate === today) return streak;
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+  const next: StreakState = {
+    current: streak.lastCompletedDate === yesterdayStr ? streak.current + 1 : 1,
+    lastCompletedDate: today,
+    max: 0,
+  };
+  next.max = Math.max(next.current, streak.max);
+
+  localStorage.setItem("nnm_streak", JSON.stringify(next));
+  return next;
+}
+
 export function saveCompleted(id: number, completed: number[]): number[] {
   const today = new Date().toISOString().slice(0, 10);
   const stored = localStorage.getItem("nnm_day");
