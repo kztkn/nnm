@@ -1,5 +1,12 @@
 import missionsData from "@/data/missions.json";
 
+function localDateStr(d = new Date()): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export type Mission = {
   id: number;
   text: string;
@@ -27,7 +34,7 @@ function dateToSeed(dateStr: string): number {
 }
 
 export function getTodayMissions(): Mission[] {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateStr();
   const rand = seededRandom(dateToSeed(today));
 
   const normal = [...missionsData.normal];
@@ -56,7 +63,7 @@ export function getTodayMissions(): Mission[] {
 }
 
 export function loadDayState(): DayState {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateStr();
 
   if (typeof window === "undefined") {
     return { date: today, missions: getTodayMissions(), completed: [], reloadCredits: 3, isRevealed: false };
@@ -97,14 +104,14 @@ export function loadStreak(): StreakState {
 }
 
 export function updateStreak(): StreakState {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateStr();
   const streak = loadStreak();
 
   if (streak.lastCompletedDate === today) return streak;
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+  const yesterdayStr = localDateStr(yesterday);
 
   const next: StreakState = {
     current: streak.lastCompletedDate === yesterdayStr ? streak.current + 1 : 1,
@@ -167,7 +174,7 @@ export function reloadMission(index: number, currentState: DayState): DayState |
 }
 
 export function saveCompleted(id: number, completed: number[]): number[] {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateStr();
   const stored = localStorage.getItem("nnm_day");
   if (!stored) return completed;
 

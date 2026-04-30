@@ -10,7 +10,10 @@ type Props = {
 const DAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
 
 function toDateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 function isSameMonth(a: Date, b: Date): boolean {
