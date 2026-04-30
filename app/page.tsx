@@ -68,17 +68,11 @@ export default function Home() {
           <div className="flex items-center gap-3 mt-1">
             <p className="text-[12px] text-white/30 tracking-wide">今日の3ミッション</p>
             {/* クレジット表示 */}
-            <div className="flex items-center gap-1">
-              {[0, 1, 2].map((i) => (
-                <svg
-                  key={i}
-                  className={`w-3 h-3 transition-all duration-300 ${i < reloadCredits ? "text-white/40" : "text-white/10"}`}
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              ))}
+            <div className={`flex items-center gap-1 transition-all duration-300 ${reloadCredits === 0 ? "text-white/20" : "text-white/40"}`}>
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span className="text-[11px] tabular-nums">{reloadCredits}</span>
             </div>
           </div>
         </div>

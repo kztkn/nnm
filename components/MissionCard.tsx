@@ -62,22 +62,23 @@ export default function MissionCard({ mission, index, completed, streak, reloadC
           {mission.text}
         </p>
 
-        {/* シェアボタン（完了時のみ） */}
-        {completed && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              shareMission(mission.text, streak);
-            }}
-            className="shrink-0 w-7 h-7 rounded-full border border-[#6b8eff]/30 bg-[#6b8eff]/10 flex items-center justify-center hover:bg-[#6b8eff]/20 transition-all duration-200"
-            title="シェアする"
-          >
-            <svg className="w-3 h-3 text-[#6b8eff]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.246 14.488 7 15.5 7 15.5m0 0s-1 1-2 0m2 0l2-2m6.316-9.842C16.754 2.512 18 3.5 18 3.5m0 0s1-1 2 0m-2 0l-2 2M5 12H3m18 0h-2M12 5V3m0 18v-2" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 9l-6 6" />
-            </svg>
-          </button>
-        )}
+        {/* シェアボタン（常時表示） */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            shareMission(mission.text, streak);
+          }}
+          className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200
+            ${completed
+              ? "border border-[#6b8eff]/30 bg-[#6b8eff]/10 hover:bg-[#6b8eff]/20 text-[#6b8eff]"
+              : "border border-white/10 text-white/25 hover:border-white/25 hover:text-white/50"
+            }`}
+          title="シェアする"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+        </button>
 
         {/* チェックボタン */}
         <div
