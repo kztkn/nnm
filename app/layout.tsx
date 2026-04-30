@@ -17,6 +17,19 @@ export const metadata: Metadata = {
   title: "non normale",
   description: "普通じゃない、小さなハッピーミッション",
   manifest: "/manifest.webmanifest",
+  openGraph: {
+    title: "non normale",
+    description: "普通じゃない、小さなハッピーミッション",
+    url: "https://nnm-lovat.vercel.app",
+    siteName: "non normale",
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "non normale",
+    description: "普通じゃない、小さなハッピーミッション",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
